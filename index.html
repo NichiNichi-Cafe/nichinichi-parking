@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NichiNichi · Anfahrt & Parken</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #f7f4ef;
+    --paper: #fdfaf5;
+    --ink: #2a2520;
+    --ink-light: #7a6f65;
+    --ink-faint: #c5bdb4;
+    --teal: #1D9E75;
+    --teal-light: #E1F5EE;
+    --teal-dark: #085041;
+    --purple: #7F77DD;
+    --purple-light: #EEEDFE;
+    --purple-dark: #3C3489;
+    --amber: #BA7517;
+    --amber-light: #FAEEDA;
+    --amber-dark: #633806;
+    --border: #e2dbd2;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  .wrap {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 40px 20px 0;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .cafe-name {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .cafe-sub {
+    font-size: 13px;
+    color: var(--ink-light);
+    margin-bottom: 16px;
+  }
+  .header-q {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+
+  .step { display: none; }
+  .step.active { display: block; }
+
+  .choices { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+  .choice-btn {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: border-color 0.15s, background 0.15s;
+    width: 100%;
+  }
+  .choice-btn:hover { border-color: var(--ink-light); background: var(--paper); }
+  .choice-icon {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .choice-title { font-size: 15px; font-weight: 500; color: var(--ink); }
+  .choice-sub { font-size: 13px; color: var(--ink-light); margin-top: 2px; }
+
+  .result-card {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+  .result-top {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .result-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin-bottom: 10px;
+  }
+  .tag-close { background: var(--teal-light); color: var(--teal-dark); }
+  .tag-walk { background: var(--purple-light); color: var(--purple-dark); }
+  .result-title { font-size: 17px; font-weight: 500; color: var(--ink); margin-bottom: 6px; }
+  .result-desc { font-size: 14px; color: var(--ink-light); line-height: 1.6; }
+
+  .result-details { padding: 0 20px; }
+  .detail-row {
+    display: flex;
+    gap: 12px;
+    padding: 11px 0;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-label { color: var(--ink-light); min-width: 80px; font-size: 13px; }
+  .detail-val { flex: 1; color: var(--ink); }
+
+  .map-wrap {
+    background: var(--bg);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 14px 0;
+    border: 1px solid var(--border);
+  }
+  .map-wrap svg { display: block; width: 100%; }
+
+  .fallback-note {
+    background: var(--amber-light);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--amber-dark);
+    line-height: 1.6;
+    margin-top: 12px;
+  }
+  .fallback-note strong { font-weight: 500; }
+  .fallback-note a { color: var(--amber); }
+
+  .back-btn {
+    background: none;
+    border: none;
+    font-size: 13px;
+    color: var(--ink-light);
+    cursor: pointer;
+    padding: 0;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .back-btn:hover { color: var(--ink); }
+
+  .footer {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--ink-faint);
+    line-height: 1.8;
+  }
+  .footer a { color: var(--ink-light); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <img src="logo.png" alt="NichiNichi Café" style="width:100px; height:100px; border-radius:50%; margin-bottom:14px; display:block; margin-left:auto; margin-right:auto;"/>
+    <div class="cafe-name">NichiNichi Café</div>
+    <div class="cafe-sub">Reinhardsau 4 · 53937 Schleiden–Olef</div>
+    <div class="header-q">Wie kommst du heute?</div>
+  </div>
+
+  <!-- Step 0: Question -->
+  <div class="step active" id="s0">
+    <div class="choices">
+      <button class="choice-btn" onclick="show('s-tight')">
+        <div class="choice-icon">⚡</div>
+        <div>
+          <div class="choice-title">Ich bin zeitlich knapp</div>
+          <div class="choice-sub">So nah wie möglich parken</div>
+        </div>
+      </button>
+      <button class="choice-btn" onclick="show('s-walk')">
+        <div class="choice-icon">🌿</div>
+        <div>
+          <div class="choice-title">Ein kleiner Spaziergang ist okay</div>
+          <div class="choice-sub">Ich nehme mir gerne ein paar ruhige Minuten</div>
+        </div>
+      </button>
+      <button class="choice-btn" onclick="show('s-stroll')">
+        <div class="choice-icon">🐦</div>
+        <div>
+          <div class="choice-title">Ich möchte Olef ein bisschen entdecken</div>
+          <div class="choice-sub">Ich nehme eine der Spazierwege-Routen</div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Step: Tight on time -->
+  <div class="step" id="s-tight">
+    <div class="result-card">
+      <div class="result-top">
+        <div class="result-tag tag-close">Nächste Option</div>
+        <div class="result-title">Direkt an der Einmündung Reinhardsau</div>
+        <div class="result-desc">Gleich nach dem Abbiegen von der B265 auf die Reinhardsau — auf der rechten Seite gibt es 2–3 Straßenparkplätze. Wenn einer frei ist, bist du in weniger als einer Minute bei uns.</div>
+      </div>
+      <div class="result-details">
+        <div class="detail-row"><span class="detail-label">Fußweg</span><span class="detail-val">Unter 1 Minute</span></div>
+        <div class="detail-row"><span class="detail-label">Plätze</span><span class="detail-val">2–3 Straßenparkplätze</span></div>
+        <div class="detail-row"><span class="detail-label">Hinweis</span><span class="detail-val">Begrenzt verfügbar — wer zuerst kommt</span></div>
+      </div>
+    </div>
+
+    <div class="map-wrap" style="position:relative;">
+      <img src="map-parking.png" alt="Parkplatz Karte" style="width:100%; display:block;"/>
+      <div style="position:absolute; top:12%; left:18%; background:#E8F97A; border:2px solid #2a2520; border-radius:6px; padding:4px 10px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; color:#2a2520; white-space:nowrap;">
+        Hier parken 🚗
+      </div>
+      <div style="position:absolute; bottom:12%; right:8%; background:#E1F5EE; border:1.5px solid #5DCAA5; border-radius:6px; padding:4px 10px; font-family:'DM Sans',sans-serif; font-size:12px; font-weight:500; color:#085041; white-space:nowrap;">
+        NichiNichi &lt; 1 Min. 🌿
+      </div>
+    </div>
+
+    <div class="fallback-note">
+      <strong>Falls alle Plätze belegt sind:</strong> Kein Problem. In Olef gibt es weitere Möglichkeiten: Oswald-Matheis-Straße oder In den Weiden. In Lützenberg: Bruchheck oder Drosselweg. Von dort sind es etwa 3–5 Minuten zu Fuß zu uns.
+    </div>
+
+    <button class="back-btn" onclick="show('s0')">← Zurück</button>
+  </div>
+
+  <!-- Step: Happy to walk -->
+  <div class="step" id="s-walk">
+    <div class="result-card">
+      <div class="result-top">
+        <div class="result-tag tag-walk">Entspannte Ankunft</div>
+        <div class="result-title">Straßenparken: Oswald-Matheis-Str., In den Weiden, Bruchheck oder Drosselweg</div>
+        <div class="result-desc">Ruhige Nebenstraßen mit gut verfügbaren Plätzen. In Olef: Oswald-Matheis-Straße oder In den Weiden. In Lützenberg: Bruchheck oder Drosselweg. Von dort läufst du in wenigen Minuten zu uns.</div>
+      </div>
+      <div class="result-details">
+        <div class="detail-row"><span class="detail-label">Fußweg</span><span class="detail-val">3–5 Minuten</span></div>
+        <div class="detail-row"><span class="detail-label">Plätze</span><span class="detail-val">Mehr Verfügbarkeit, weniger Stress</span></div>
+        <div class="detail-row"><span class="detail-label">Tipp</span><span class="detail-val">Wir haben zwei Olef-Spazierkarten — frag uns einfach</span></div>
+      </div>
+    </div>
+
+    <div class="map-wrap">
+      <img src="map-walking.png" alt="Anfahrtskarte NichiNichi" style="width:100%; display:block;"/>
+    </div>
+
+    <button class="back-btn" onclick="show('s0')">← Zurück</button>
+  </div>
+
+  <!-- Step: Strolling routes -->
+  <div class="step" id="s-stroll">
+    <div class="result-card">
+      <div class="result-top">
+        <div class="result-tag" style="background:#FEF3E2; color:#854F0B;">Spazierrouten</div>
+        <div class="result-title">A Stroll Through Olef</div>
+        <div class="result-desc">Zwei schöne Routen durch Olef — jeweils ca. 10–15 Minuten. Parken entlang der Strecke, dann gemütlich zu uns spazieren.</div>
+      </div>
+      <div class="result-details">
+        <div class="detail-row"><span class="detail-label">Dauer</span><span class="detail-val">10–15 Minuten</span></div>
+        <div class="detail-row"><span class="detail-label">Parken</span><span class="detail-val">Entlang der Route — in der Karte markiert</span></div>
+        <div class="detail-row"><span class="detail-label">Hinweis</span><span class="detail-val">Einfahrten und Zugänge bitte freihalten</span></div>
+      </div>
+    </div>
+
+    <div style="margin: 14px 0 6px; font-size: 12px; font-weight: 500; color: var(--ink-light); letter-spacing: 0.05em; text-transform: uppercase;">Route #1 — Lützenberg</div>
+    <div class="map-wrap">
+      <img src="stroll-route1.png" alt="Stroll Route 1" style="width:100%; display:block;"/>
+    </div>
+
+    <div style="margin: 14px 0 6px; font-size: 12px; font-weight: 500; color: var(--ink-light); letter-spacing: 0.05em; text-transform: uppercase;">Route #2 — Olef</div>
+    <div class="map-wrap">
+      <img src="stroll-route2.png" alt="Stroll Route 2" style="width:100%; display:block;"/>
+    </div>
+
+    <button class="back-btn" onclick="show('s0')">← Zurück</button>
+  </div>
+
+  <div class="footer">
+    Mo–Di 12–14 Uhr · Fr–So 12–18 Uhr · Mi–Do geschlossen<br>
+    Nur Barzahlung · Keine Toilette · <a href="https://www.instagram.com/nichinichi_cafe_olef">@nichinichi_cafe_olef</a>
+  </div>
+
+</div>
+<script>
+function show(id) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
